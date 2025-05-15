@@ -1,5 +1,5 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import { authService } from '../services/api';
+import { createContext, useContext, useState, useEffect } from "react";
+import { authService } from "../services/api";
 
 // Create the authentication context
 const AuthContext = createContext();
@@ -17,17 +17,17 @@ export const AuthProvider = ({ children }) => {
         if (authService.isAuthenticated()) {
           // Set user from localStorage initially
           setUser(authService.getUser());
-          
+
           // Then verify with the server
           const response = await authService.getProfile();
           if (response.data && response.data.user) {
             setUser(response.data.user);
             // Update localStorage with the latest user data
-            localStorage.setItem('user', JSON.stringify(response.data.user));
+            localStorage.setItem("user", JSON.stringify(response.data.user));
           }
         }
       } catch (err) {
-        console.error('Authentication check failed:', err);
+        console.error("Authentication check failed:", err);
         // If the server check fails, clear stored data
         authService.logout();
       } finally {
@@ -38,32 +38,18 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  // Register a new user
-  const register = async (userData) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await authService.register(userData);
-      setUser(response.data.user);
-      return response;
-    } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Login user
   const login = async (credentials) => {
     setLoading(true);
     setError(null);
     try {
       const response = await authService.login(credentials);
-      setUser(response.data.user);
+      if (response.data && response.data.user) {
+        setUser(response.data.user);
+      }
       return response;
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.response?.data?.message || "Login failed");
       throw err;
     } finally {
       setLoading(false);
@@ -85,7 +71,7 @@ export const AuthProvider = ({ children }) => {
       setUser(response.data.user);
       return response;
     } catch (err) {
-      setError(err.response?.data?.message || 'Profile update failed');
+      setError(err.response?.data?.message || "Profile update failed");
       throw err;
     } finally {
       setLoading(false);
@@ -100,7 +86,7 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.updatePassword(passwordData);
       return response;
     } catch (err) {
-      setError(err.response?.data?.message || 'Password update failed');
+      setError(err.response?.data?.message || "Password update failed");
       throw err;
     } finally {
       setLoading(false);
@@ -115,7 +101,7 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.forgotPassword(email);
       return response;
     } catch (err) {
-      setError(err.response?.data?.message || 'Password reset request failed');
+      setError(err.response?.data?.message || "Password reset request failed");
       throw err;
     } finally {
       setLoading(false);
@@ -130,7 +116,7 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.resetPassword(token, password);
       return response;
     } catch (err) {
-      setError(err.response?.data?.message || 'Password reset failed');
+      setError(err.response?.data?.message || "Password reset failed");
       throw err;
     } finally {
       setLoading(false);
@@ -143,13 +129,12 @@ export const AuthProvider = ({ children }) => {
     loading,
     error,
     isAuthenticated: !!user,
-    register,
     login,
     logout,
     updateProfile,
     updatePassword,
     forgotPassword,
-    resetPassword
+    resetPassword,
   };
 
   // Provide the auth context to children components
@@ -160,7 +145,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

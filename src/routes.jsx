@@ -1,12 +1,7 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
 // Auth pages
-import {
-  LoginPage,
-  RegisterPage,
-  ForgotPasswordPage,
-  ResetPasswordPage,
-} from "./pages/auth";
+import { LoginPage, ForgotPasswordPage, ResetPasswordPage } from "./pages/auth";
 
 // Dashboard pages
 import {
@@ -16,22 +11,21 @@ import {
   Categories,
   Products,
   Uploads,
-  Orders
+  Orders,
 } from "./pages/dashboard";
 
 // Auth context
 import { useAuth } from "./context/AuthContext";
 import { LoadingSpinner } from "./components/common";
 
-
 // Protected route component
 const ProtectedRoute = ({ element }) => {
   const { isAuthenticated, loading } = useAuth();
 
   // Show loading state while checking authentication
-  if (loading) {
-    return <LoadingSpinner fullScreen message="Loading..." />;
-  }
+  // if (loading) {
+  //   return <LoadingSpinner fullScreen message="Loading..." />;
+  // }
 
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
@@ -44,19 +38,16 @@ const ProtectedRoute = ({ element }) => {
 
 // Guest route component (redirect to dashboard if already logged in)
 const GuestRoute = ({ element }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
 
-  // Show loading state while checking authentication
-  if (loading) {
-    return <LoadingSpinner fullScreen message="Loading..." />;
-  }
+  // if (loading) {
+  //   return <LoadingSpinner fullScreen message="Loading..." />;
+  // }
 
-  // Redirect to dashboard if already authenticated
-  if (isAuthenticated) {
+  if ((isAuthenticated && user?.role === "admin") || user?.role === "company") {
     return <Navigate to="/dashboard" replace />;
   }
 
-  // Render the guest component
   return element;
 };
 
@@ -70,10 +61,6 @@ export const router = createBrowserRouter([
   {
     path: "/login",
     element: <GuestRoute element={<LoginPage />} />,
-  },
-  {
-    path: "/register",
-    element: <GuestRoute element={<RegisterPage />} />,
   },
   {
     path: "/forgot-password",
